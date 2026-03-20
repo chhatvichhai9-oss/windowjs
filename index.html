@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធគ្រប់គ្រងកាលវិភាគសិក្សា - សរសេរដោយ៖លោកគ្រូ ឆាត វិឆៃ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Content&family=Khmer+OS+Muol+Light&display=swap');
+        /* កំណត់ទំហំ និងស្ពានសម្រាប់ការបោះពុម្ព */
+        @page { size: auto; margin: 10mm 2mm 2mm 2mm; }
+        /* កំណត់ពណ៌សម្រាប់ប្រធានបទ និងធាតុសំខាន់ៗនៅលើទំព័រ */
+        :root { --main-color: #2980b9; }
+        /* សម្រាប់ស្ទីលទូទៅនៃទំព័រ និងកុងតឺន័រ */
+        body { font-family: 'Khmer OS Content', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; }
+        .container { max-width: 1800px; margin: auto; background: white; padding: 10px; border-radius: 4px; }
+        /* សម្រាប់ក្បាលទំព័រដែលមានព័ត៌មានសាលា និងកាលបរិច្ឆេទ និងប្រធានបទ និងផ្នែកជ្រើសរើសពណ៌ */
+        .header-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; padding-top: 2px; }
+        .school-side { width: 75%; text-align: left; padding-bottom: 2px; }
+        .nation-side { width: 25%; text-align: center; }
+        /* សម្រាប់ប៊ូតុងសកម្មភាពនៅលើកាលវិភាគ និងប៊ូតុងបន្ថែមទិន្នន័យ */
+        .top-action-bar { display: flex; gap: 4px; margin-top: px; }
+        /* សម្រាប់បញ្ចូលព័ត៌មានសាលា និងកាលបរិច្ឆេទ */
+        .school-input { border: none; border-bottom: 1px dashed #ccc; font-family: 'Khmer OS Muol Light'; font-size: 12px; color: #1a5276; width: 100%; background: transparent; }
+        .school-input:focus { outline: none; border-bottom: 1px solid var(--main-color); }
+        .nation-title { font-family: 'Khmer OS Muol Light'; font-size: 14px; margin-bottom: 2px; }
+        .nation-motto { font-family: 'Khmer OS Muol Light'; font-size: 12px; position: relative; display: inline-block; }
+        .nation-motto::after { content: "~~~"; display: block; line-height: 0.5; font-size: 10px; }
+        /* សម្រាប់ក្បាលទំព័រដែលមានព័ត៌មានសាលា និងកាលបរិច្ឆេទ និងប្រធានបទ និងផ្នែកជ្រើសរើសពណ៌ */
+        .sticky-header-container {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--main-color);
+        }
+        /* សម្រាប់ប្រធានបទ និងផ្នែកជ្រើសរើសពណ៌ */
+        h2 { font-family: 'Khmer OS Muol Light', serif; color: #1a5276; text-align: center; font-size: 14px; margin: 5px 0; clear: both; }
+        /* សម្រាប់ផ្នែកជ្រើសរើសពណ៌សម្រាប់ប្រធានបទ */ 
+        .color-picker-section {
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: -5px; margin-bottom: 8px; padding: 3px; background: #fff; border: 1px solid #eee; border-radius: 15px;
+        }
+        .color-label { font-size: 10px; font-weight: bold; color: #7f8c8d; }
+        .color-options { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid transparent; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .color-dot.active { border-color: #000; transform: scale(1.2); }
+        /* សម្រាប់ផ្នែកបង្ហាញព័ត៌មានសាលា និងកាលបរិច្ឆេទនៅលើក្បាលទំព័រ */
+        .meta-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; padding: 8px; background: #e8f4fd; border-radius: 6px;
+        }
+        /* សម្រាប់ផ្នែកបញ្ចូលព័ត៌មានសាលា និងកាលបរិច្ឆេទ */
+        .date-input-group { display: flex; flex-direction: column; gap: 3px; }
+        /* សម្រាប់ផ្នែកបញ្ចូលទិន្នន័យ និងជ្រើសរើសម៉ោង និងថ្ងៃ */
+        .form-section { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1px; background: #faf8f8; padding: 3px; border: 1px solid var(--main-color); border-radius: 6px; margin-bottom: 8px; 
+        }
+        /* សម្រាប់បញ្ចូលទិន្នន័យ និងជ្រើសរើសម៉ោង និងថ្ងៃ */
+        select, input, button { padding: 4px 6px; border: 1px solid #bdc3c7; border-radius: 4px; font-family: 'Khmer OS Content'; font-size: 12px; }
+        /* សម្រាប់ប៊ូតុងសកម្មភាពនៅលើកាលវិភាគ និងប៊ូតុងបន្ថែមទិន្នន័យ */
+        .btn-print { background-color: var(--main-color); color: white; border: none; font-weight: bold; padding: 5.5px 12px; font-size: 11.5px; cursor: pointer; border-radius: 4px; transition: 0.3s; white-space: nowrap; }
+        .btn-clear { background-color: #e74c3c; color: white; border: none; font-weight: bold; padding: 5.5px 12px; font-size: 11.5px; cursor: pointer; border-radius: 4px; white-space: nowrap; }
+        /* សម្រាប់ផ្នែកបង្ហាញតារាងកាលវិភាគសម្រាប់គ្រប់ថ្ងៃ */
+        .tab-container { display: flex; overflow-x: auto; background: #fff; }
+        .tab { padding: 3px 10px; cursor: pointer; background: #fde8ea; border: 1px solid #d4e6f1; border-bottom: none; margin-right: 2px; border-radius: 4px 4px 0 0; font-size: 10.5px; }
+        .tab.active { background: var(--main-color); color: white; }
+        /* សម្រាប់ផ្នែកបង្ហាញកាលវិភាគសម្រាប់គ្រប់ថ្ងៃ */
+        .day-content { display: none; margin-top: 10px; }
+        .day-content.active { display: block; }
+        /* សម្រាប់តារាងកាលវិភាគសម្រាប់បង្ហាញតាមថ្ងៃ */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        thead th { background-color: #34495e; color: white; font-family: 'Khmer OS Muol Light'; font-size: 9px; padding: 5px; }
+        td { border: 1px solid #dee2e6; padding: 4px; text-align: center; font-size: 10px; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        /* សម្រាប់ផ្នែកហត្ថលេខា និងកាលបរិច្ឆេទនៅចុងទំព័រ */
+        .day-footer-signature { margin-top: 20px; display: flex; justify-content: space-between; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .footer-sig-box { text-align: center; width: 45%; }
+
+         /* សម្រាប់ផ្នែកបង្ហាញកាលវិភាគសម្រាប់បោះពុម្ព */
+        .master-container { margin-top: 15px; overflow-x: auto; border: 2px solid #34495e; border-radius: 8px; padding: 10px; background: #fff; page-break-after: always; }
+        .master-table th { font-size: 10px !important; padding: 3px 1px; }
+        .master-table td { font-size: 10px !important; padding: 2px 1px; min-width: 60px; }
+        .master-title { font-family: 'Khmer OS Muol Light'; text-align: center; font-size: 13px; margin-bottom: 8px; color: #1a5276; }
+        .total-col { background-color: #2c3e50 !important; color: white !important; font-weight: bold; }
+        /* សម្រាប់តារាងម៉ាទ្រីសបង្ហាញកាលវិភាគសម្រាប់គ្រប់ថ្នាក់ក្នុងមួយសប្តាហ៍ */
+        .class-group { margin-top: 15px; border: 1.5px solid var(--main-color); border-radius: 8px; padding: 12px; background: #fff; page-break-after: always; }
+        .class-title { color: var(--main-color); font-family: 'Khmer OS Muol Light'; font-size: 20px; margin-bottom: 6px; text-align: center; }
+        /* សម្រាប់តារាងម៉ាទ្រីសបង្ហាញកាលវិភាគសម្រាប់គ្រប់ថ្នាក់ក្នុងមួយសប្តាហ៍ */
+        .matrix-table th { padding: 8px 4px; font-size: 12px; background-color: var(--main-color) !important; color: white !important; }
+        .matrix-table td { min-height: 20px; padding: 8px 4px; font-size: 12px; min-width: 40px; }
+        /* កែសម្រួលពណ៌សម្រាប់ម៉ោងព្រឹក និងម៉ោងល្ងាច */
+        .afternoon-break { background-color: #f0f3f4 !important; font-family: 'Khmer OS Muol Light'; font-size: 9px !important; color: #7f8c8d; height: 25px; }
+        /* សម្រាប់ផ្នែកហត្ថលេខា និងកាលបរិច្ឆេទនៅចុងទំព័រ */
+        .signature-section { margin-top: 15px; display: flex; justify-content: space-between; padding: 0 10px; }
+        .sig-box { text-align: center; width: 45%; }
+        .sig-date-area { font-size: 10.5px; line-height: 1.5; }
+        .sig-title { font-family: 'Khmer OS Muol Light'; font-size: 10.5px; margin-bottom: 45px; margin-top: 5px; }
+        .sig-name { font-family: 'Khmer OS Muol Light'; font-size: 10.5px; color: #2c3e50; }
+        /* សម្រាប់ផ្នែកបង្ហាញការចូលរួមសម្រាប់គ្រប់ថ្ងៃ */
+        .attendance-section { margin-top: 30px; background: white; padding: 15px; border-radius: 8px; border: 2px solid #34495e; page-break-before: always; }
+        .attendance-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .attendance-table th, .attendance-table td { border: 1px solid #000; text-align: center; padding: 2px; font-size: 11px; }
+        .attendance-table thead th { background-color: #f2f2f2; color: #000; font-family: 'Khmer OS Muol Light'; }
+        /* កំណត់ទំហំក្រឡាជាក់លាក់សម្រាប់តារាងវត្តមាន */
+        .attendance-table th:nth-child(1), .attendance-table td:nth-child(1) { width: 15px; } /* ល.រ */
+        .attendance-table th:nth-child(2), .attendance-table td:nth-child(2) { width: 60px; } /* ឈ្មោះគ្រូ */
+        /* បន្ថែមកូដនេះ ដើម្បីកំណត់ទំហំអក្សរសម្រាប់ជួរឈរទី ២ (ឈ្មោះគ្រូ) */
+        .attendance-table td:nth-child(2) {
+            font-size: 12px !important; /* លោកគ្រូអាចដូរលេខ ១២ នេះឱ្យតូចជាងមុនតាមចិត្ត */
+            white-space: nowrap;      /* កុំឱ្យវាធ្លាក់បន្ទាត់ បើអក្សរវែង */
+        }
+        .attendance-table th:nth-child(3), .attendance-table td:nth-child(3) { width: 20px; } /* ភេទ */
+        /* បន្ថែមកូដនេះ ដើម្បីកំណត់ទំហំអក្សរសម្រាប់ជួរឈរទី ៣ (ភេទ) */
+        .attendance-table td:nth-child(3) {
+            font-size: 11px !important; /* លោកគ្រូអាចដូរលេខ ១១ នេះឱ្យតូចជាងមុនតាមចិត្ត */
+            white-space: nowrap;      /* កុំឱ្យវាធ្លាក់បន្ទាត់ បើអក្សរវែង */
+        }
+        .attendance-table th:nth-child(4), .attendance-table td:nth-child(4) { width: 20px; } /* តួនាទី */
+        /* បន្ថែមកូដនេះ ដើម្បីកំណត់ទំហំអក្សរសម្រាប់ជួរឈរទី ៤ (តួនាទី) */
+        .attendance-table td:nth-child(4) {
+            font-size: 10px !important; /* លោកគ្រូអាចដូរលេខ ១០ នេះឱ្យតូចជាងមុនតាមចិត្ត */
+            white-space: nowrap;      /* កុំឱ្យវាធ្លាក់បន្ទាត់ បើអក្សរវែង */
+        }
+        .attendance-table th:nth-child(5), .attendance-table td:nth-child(5) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(6), .attendance-table td:nth-child(6) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(7), .attendance-table td:nth-child(7) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(8), .attendance-table td:nth-child(8) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(9), .attendance-table td:nth-child(9) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(10), .attendance-table td:nth-child(10) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(11), .attendance-table td:nth-child(11) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(12), .attendance-table td:nth-child(12) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(13), .attendance-table td:nth-child(13) { width: 80px; } /* ហត្ថលេខា */
+        .attendance-table th:nth-child(14), .attendance-table td:nth-child(14) { width: 50px; } /* ផ្សេងៗ */
+        
+        /* កែសម្រួលពណ៌ប្រផេះសម្រាប់ម៉ោងទំនេរ */
+        .free-slot { background-color: #d1d1d1 !important; } 
+        /* ពណ៌សសម្រាប់ម៉ោងដែលមានបង្រៀន */
+        .busy-slot { background-color: #ffffff !important; }
+
+        /* សម្រាប់ផ្នែកសង្ខេប */ 
+        .summary-section { background: #f1f7fe; padding: 8px; margin-top: 8px; border-radius: 4px; border: 1px dashed var(--main-color); }
+        .summary-header { font-family: 'Khmer OS Muol Light'; font-size: 9.5px; color: #1a5276; margin-bottom: 5px; border-bottom: 1px solid var(--main-color); padding-bottom: 2px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; font-size: 9.5px; }
+        .summary-item { background: white; padding: 6px; border-radius: 4px; border-left: 3px solid var(--main-color); box-shadow: 1px 1px 3px rgba(0,0,0,0.05); line-height: 1.4; }
+        .summary-contact { color: #e67e22; font-weight: bold; font-size: 9px; border-top: 1px dotted #ccc; margin-top: 2px; display: block; }
+        .note-section {
+    margin-top: 30px;
+    padding: 15px;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    background-color: #fff;
+    page-break-before: always; /* ឱ្យវាលោតទៅទំព័រថ្មីពេល Print */
+}
+.note-title {
+    color: #e74c3c;
+    font-family: 'Khmer OS Muol Light';
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+.note-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+.note-column {
+    width: 48%;
+    font-size: 11px;
+    line-height: 1.8;
+}
+.note-column ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.note-column li::before {
+    content: "- ";
+}
+
+        
+        /* កែសម្រួលសម្រាប់បោះពុម្ព */
+        @media print {
+             .sticky-header-container, button, .tab-container, .color-picker-section, .top-action-bar, .form-section { display: none !important; }
+            .day-content { display: none !important; } 
+            body {  -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important;
+            #master-schedule-outer, #classes-matrix-container { display: block !important; }
+            .container { box-shadow: none; padding: 0; width: 100%; }
+            }}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sticky-header-container">
+        <div class="header-top">
+            <div class="school-side">
+                <div class="school-input-group"></div>
+                    <button class="btn-clear" onclick="clearAllData()">🗑️ លុបទាំងអស់</button> 
+                    <button class="btn-print" onclick="window.print()">🖨️ បោះពុម្ព</button>
+                    <select id="schoolName" onchange="saveMetaData()" style="width: 180px; font-size: 12px; border: 1px solid #e74c3c;">
+                    <option value="">សូមជ្រើសរើស........</option>
+                    <option value="សាលាបឋមសិក្សា">សាលាបឋមសិក្សា</option>
+                    <option value="អនុវិទ្យាល័យខ្ញុំបាទ/នាងខ្ញុំបាទ">អនុវិទ្យាល័យខ្ញុំបាទ/នាងខ្ញុំបាទ</option>
+                    <option value="វិទ្យាល័យខ្ញុំបាទ/នាងខ្ញុំបាទ">វិទ្យាល័យខ្ញុំបាទ/នាងខ្ញុំបាទ</option>
+                    <input type="text" id="directorName" placeholder="ឈ្មោះនាយកសាលា" oninput="saveMetaData()" style="width: 120px; font-size: 12px;border: 1px solid #e74c3c;">
+                    <input type="text" id="chanDate" placeholder="ថ្ងៃចន្ទគតិ..." oninput="saveMetaData()" style="width: 320px; font-size: 12px;border: 1px solid #e74c3c;">
+                    <input type="text" id="soriyaDate" placeholder="ថ្ងៃសូរិយគតិ..." oninput="saveMetaData()" style="width: 235px; font-size: 12px;border: 1px solid #e74c3c;">
+                
+                <div class="school-input-group">
+                    
+                </div>
+                </select>
+            </div>
+            
+            <div class="nation-side">
+                <div class="nation-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
+                <div class="nation-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+            </div>
+        </div>
+        
+        <div class="color-picker-section">
+            <h2>ប្រព័ន្ធគ្រប់គ្រងកាលវិភាគសិក្សា</h2>
+            <span class="color-label">ពណ៌ប្រធានបទ៖</span>
+            <div class="color-options" id="colorPicker"></div>
+        </div>
+        <div class="form-section">
+            <input type="hidden" id="editId">
+            <input type="text" id="teacherName" placeholder="ឈ្មោះគ្រូ៖ឧ.ឆាត វិឆៃ">
+            <select id="genderSelect">
+                <option value="ប្រុស">ភេទ៖ ប្រុស</option>
+                <option value="ស្រី">ភេទ៖ ស្រី</option>
+                <option value=""> </option>
+            </select>
+            <input type="text" id="phoneInput" placeholder="ទូរស័ព្ទ៖ឧ.098981192">
+            <input type="text" id="roleInput" placeholder="តួនាទី៖ឧ.គ្រូបន្ទុកថ្នាក់">
+            <select id="daySelect">
+                <option value="Monday">ថ្ងៃចន្ទ</option><option value="Tuesday">ថ្ងៃអង្គារ</option>
+                <option value="Wednesday">ថ្ងៃពុធ</option><option value="Thursday">ថ្ងៃព្រហស្បតិ៍</option>
+                <option value="Friday">ថ្ងៃសុក្រ</option><option value="Saturday">ថ្ងៃសៅរ៍</option>
+            </select>
+            <select id="timeSelect">
+                <option value="07:00 - 08:00">07:00 - 08:00</option><option value="08:00 - 09:00">08:00 - 09:00</option>
+                <option value="09:00 - 10:00">09:00 - 10:00</option><option value="10:00 - 11:00">10:00 - 11:00</option>
+                <option value="11:00 - 12:00">11:00 - 12:00</option><option value="12:00 - 13:00">12:00 - 13:00</option>
+                <option value="13:00 - 14:00">13:00 - 14:00</option><option value="14:00 - 15:00">14:00 - 15:00</option>
+                <option value="15:00 - 16:00">15:00 - 16:00</option><option value="16:00 - 17:00">16:00 - 17:00</option>
+            </select>
+            <input type="text" id="classInput" placeholder="ថ្នាក់៖ឧ.៩ក.១២A">
+            <select id="subjectSelect">
+                <option value="ភាសាខ្មែរ">ភាសាខ្មែរ</option><option value="ពលរដ្ឋ">ពលរដ្ឋ</option>
+                <option value="ភូមិវិទ្យា">ភូមិវិទ្យា</option><option value="ប្រវត្តិវិទ្យា">ប្រវត្តិវិទ្យា</option>
+                <option value="គណិតវិទ្យា">គណិតវិទ្យា</option><option value="រូបវិទ្យា">រូបវិទ្យា</option>
+                <option value="គីមីវិទ្យា">គីមីវិទ្យា</option><option value="ជីវវិទ្យា">ជីវវិទ្យា</option>
+                <option value="ផែនដីវិទ្យា">ផែនដីវិទ្យា</option><option value="អង់គ្លេស">អង់គ្លេស</option>
+                <option value="បារាំង">បារាំង</option><option value="គេហះ">គេហះ</option>
+                <option value="បច្ចេកវិជ្ជា">បច្ចេកវិជ្ជា</option><option value="អប់រំសិល្បៈ">អប់រំសិល្បៈ</option>
+                <option value="កីឡា">កីឡា</option><option value="អប់រំកាយ">អប់រំកាយ</option>
+                <option value="បំណិន">បំណិន</option><option value="រោងជាង">រោងជាង</option>
+                <option value="កសិកម្ម">កសិកម្ម</option><option value="សេដ្ឋកិច្ច">សេដ្ឋកិច្ច</option>
+                <option value="សុខភាព">សុខភាព</option><option value="ជំនាញវិជ្ជាជីវៈ">ជំនាញវិជ្ជាជីវៈ</option>
+                <option value="ICT">ICT</option>
+                <option value="ការិយាល័យ">ការិយាល័យ</option>
+            </select>
+            <button id="addBtn" style="background-color: #28a745; color: white;" onclick="addEntry()">+ បន្ថែម</button>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="showDay('Monday', this)">ចន្ទ</div>
+            <div class="tab" onclick="showDay('Tuesday', this)">អង្គារ</div>
+            <div class="tab" onclick="showDay('Wednesday', this)">ពុធ</div>
+            <div class="tab" onclick="showDay('Thursday', this)">ព្រហស្បតិ៍</div>
+            <div class="tab" onclick="showDay('Friday', this)">សុក្រ</div>
+            <div class="tab" onclick="showDay('Saturday', this)">សៅរ៍</div>
+        </div>
+    </div>
+    
+    <div id="day-contents">
+        <div id="Monday" class="day-content active"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Monday"></tbody></table></div>
+        <div id="Tuesday" class="day-content"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Tuesday"></tbody></table></div>
+        <div id="Wednesday" class="day-content"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Wednesday"></tbody></table></div>
+        <div id="Thursday" class="day-content"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Thursday"></tbody></table></div>
+        <div id="Friday" class="day-content"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Friday"></tbody></table></div>
+        <div id="Saturday" class="day-content"><table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody id="list-Saturday"></tbody></table></div>
+    </div>
+
+    <div id="master-schedule-outer"></div>
+    <div id="classes-matrix-container"></div>
+    <div id="all-days-attendance-container"></div>
+    <div class="note-section">
+    <div class="note-title">សម្គាល់៖ ទណ្ឌកម្មវិន័យអនុវត្តចំពោះអវត្តមានគ្មានច្បាប់អនុញ្ញាត</div>
+    <div class="note-content">
+        <div class="note-column">
+            <strong>+ មន្ត្រីរាជការស៊ីវិល</strong>
+            <ul>
+                <li>ស្តីបន្ទោស</li>
+                <li>ការស្តីបន្ទោសដោយពុំមានចំណារក្នុងសំណុំលិខិតផ្ទាល់ខ្លួន</li>
+                <li>ការផ្លាស់ប្តូរដោយបង្ខំតាមវិធានការខាងវិន័យ ឬការលុបឈ្មោះចេញពីតារាងដំឡើងឋានន្តរស័ក្តិ ឬថ្នាក់</li>
+                <li>ការលុបឈ្មោះចេញពីក្របខណ្ឌ</li>
+            </ul>
+        </div>
+
+        <div class="note-column">
+            <center><strong>ប្រភេទច្បាប់ឈប់សម្រាករបស់មន្ត្រីរាជការស៊ីវិលរួមមាន៖</strong></center>
+            <ol>
+                <li><strong>ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ៖</strong> មានរយៈពេល ១៥ ថ្ងៃនៃថ្ងៃធ្វើការក្នុង ១ឆ្នាំ</li>
+                <li><strong>ច្បាប់ឈប់សម្រាករយៈពេលខ្លី៖</strong> មានរយៈពេល ១៥ ថ្ងៃនៃថ្ងៃធ្វើការក្នុង ១ឆ្នាំ</li>
+                <li><strong>ច្បាប់ឈប់សម្រាកសម្រាលកូន (មាតុភាព)៖</strong> មានរយៈពេល ០៣ ខែ</li>
+                <li><strong>ច្បាប់ឈប់សម្រាកព្យាបាលជំងឺ៖</strong> មានរយៈពេល ១២ ខែក្នុងអំឡុងពេលបម្រើការងារ</li>
+                <li><strong>ច្បាប់ឈប់សម្រាកដោយមានកិច្ចការផ្ទាល់ខ្លួន៖</strong> មានរយៈពេល ០៣ ខែក្នុងអំឡុងពេលបម្រើការងារ</li>
+            </ol>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    let entries = JSON.parse(localStorage.getItem('teacherTasks')) || [];
+    const morningSlots = ["07:00 - 08:00", "08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00"];
+    const afternoonSlots = ["13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"];
+    const allSlots = [...morningSlots, ...afternoonSlots];
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const daysKh = ["ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"];
+    // ពណ៌សម្រាប់ប្រធានបទ និងធាតុសំខាន់ៗនៅលើទំព័រ
+    const colorList = ["#c0392b", "#2980b9", "#27ae60", "#8e44ad", "#f39c12", "#2c3e50", "#16a085", "#d35400", "#1A16CC", "#2ecc71", "#3498db", "#9b59b6", "#e74c3c", "#f1c40f", "#1abc9c"];
+    // កាលវិភាគសម្រាប់បង្ហាញតាមថ្ងៃ
+    window.onload = function() {
+        initColors();
+        document.getElementById('schoolName').value = localStorage.getItem('schoolName') || "";
+        document.getElementById('chanDate').value = localStorage.getItem('chanDate') || "";
+        document.getElementById('soriyaDate').value = localStorage.getItem('soriyaDate') || "";
+        document.getElementById('directorName').value = localStorage.getItem('directorName') || "";
+        renderLists(); 
+        renderAll();
+    };
+    // មុខងារសម្រាប់ជ្រើសរើសពណ៌សម្រាប់ប្រធានបទ
+    function initColors() {
+        const picker = document.getElementById('colorPicker');
+        const savedColor = localStorage.getItem('themeColor') || "#2980b9";
+        document.documentElement.style.setProperty('--main-color', savedColor);
+        colorList.forEach(color => {
+            const dot = document.createElement('div');
+            dot.className = 'color-dot' + (color === savedColor ? ' active' : '');
+            dot.style.backgroundColor = color;
+            dot.onclick = () => {
+                document.documentElement.style.setProperty('--main-color', color);
+                localStorage.setItem('themeColor', color);
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
+                renderAll();
+            };
+            picker.appendChild(dot);
+        });
+    }
+    // មុខងារសម្រាប់រក្សាទុកព័ត៌មានសាលា និងកាលបរិច្ឆេទ
+    function saveMetaData() {
+        const sch = document.getElementById('schoolName').value;
+        localStorage.setItem('schoolName', sch);
+        localStorage.setItem('chanDate', document.getElementById('chanDate').value);
+        localStorage.setItem('soriyaDate', document.getElementById('soriyaDate').value);
+        localStorage.setItem('directorName', document.getElementById('directorName').value);
+        
+        // ប្តូរពណ៌ស៊ុមដើម្បីបញ្ជាក់ថាបានជ្រើសរើសរួច
+        document.getElementById('schoolName').style.borderColor = sch ? "#bdc3c7" : "#e74c3c";
+        renderAll();
+    }
+    // មុខងារបន្ថែមឬកែសម្រួលការបែងចែកភារកិច្ច
+    function addEntry() {
+         // មុខងារត្រួតពិនិត្យការជ្រើសរើសឈ្មោះសាលា
+        const currentSchool = document.getElementById('schoolName').value;
+        if (!currentSchool) {
+            alert("សូមមេត្តាជ្រើសរើស 'ឈ្មោះសាលា' ជាមុនសិន ទើបអាចបន្ថែមទិន្នន័យបាន!");
+            document.getElementById('schoolName').focus();
+            return;
+        }
+        // ទទួលយកទិន្នន័យពីបែបបទ និងធ្វើការត្រួតពិនិត្យស្ទួនម៉ោងសម្រាប់គ្រូ និងថ្នាក់
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('teacherName').value.trim();
+        const gender = document.getElementById('genderSelect').value;
+        const phone = document.getElementById('phoneInput').value.trim();
+        const role = document.getElementById('roleInput').value.trim() || "គ្រូបង្រៀន";
+        const day = document.getElementById('daySelect').value;
+        const time = document.getElementById('timeSelect').value;
+        const cName = document.getElementById('classInput').value.trim();
+        const sub = document.getElementById('subjectSelect').value;
+        // ត្រួតពិនិត្យឈ្មោះគ្រូ និងថ្នាក់មុនពេលបន្ថែម ឬកែសម្រួល
+        if (!name || !cName) return alert("សូមបំពេញឈ្មោះគ្រូ និងថ្នាក់!");
+        // ត្រួតពិនិត្យស្ទួនម៉ោងសម្រាប់គ្រូ និងថ្នាក់
+        const teacherConflict = entries.find(e => 
+            e.name.toLowerCase() === name.toLowerCase() && 
+            e.day === day && 
+            e.time === time && 
+            e.id != id
+        );
+        // បើស្ទួនម៉ោងសម្រាប់គ្រូ ឬថ្នាក់ សូមបង្ហាញការព្រមាន និងមិនអនុញ្ញាតឲ្យបន្ថែម ឬកែសម្រួលទេ
+        if (teacherConflict) {
+            return alert(`⚠️ ស្ទួនម៉ោង៖ លោកគ្រូ/អ្នកគ្រូ ${name} មានម៉ោងបង្រៀននៅថ្នាក់ ${teacherConflict.className} រួចហើយក្នុងម៉ោងនេះ!សូមជ្រើសរើសម៉ោងផ្សេង​ឬថ្ងៃផ្សេងទៀតសូមអគុណ។`);
+        }
+        // ត្រួតពិនិត្យស្ទួនម៉ោងសម្រាប់ថ្នាក់
+        const classConflict = entries.find(e => 
+            e.className.toLowerCase() === cName.toLowerCase() && 
+            e.day === day && 
+            e.time === time && 
+            e.id != id
+        );
+        // បើស្ទួនម៉ោងសម្រាប់ថ្នាក់ សូមបង្ហាញការព្រមាន និងមិនអនុញ្ញាតឲ្យបន្ថែម ឬកែសម្រួលទេ
+        if (classConflict) {
+            return alert(`⚠️ ស្ទួនម៉ោងក្នុង៖ ថ្នាក់ ${cName} មានគ្រូ ${classConflict.name} កំពុងបង្រៀនរួចហើយក្នុងម៉ោងនេះ!សូមជ្រើសរើសម៉ោងផ្សេង​ឬថ្ងៃផ្សេងទៀតសូមអគុណ។`);
+        }
+        // បើគ្មានស្ទួនម៉ោង សូមបន្ថែម ឬកែសម្រួលការបែងចែកភារកិច្ច
+        if (id) { 
+            const i = entries.findIndex(e => e.id == id); 
+            entries[i] = { ...entries[i], name, gender, phone, role, day, time, className: cName, sub }; 
+            document.getElementById('editId').value = ""; 
+            document.getElementById('addBtn').innerText = "+ បន្ថែម"; 
+        } else { 
+            // បន្ថែមការបែងចែកភារកិច្ចថ្មី
+            entries.push({ id: Date.now(), name, gender, phone, role, day, time, className: cName, sub }); 
+        }
+        // រក្សាទុកទិន្នន័យទៅ localStorage និងបង្ហាញកាលវិភាគថ្មី
+        localStorage.setItem('teacherTasks', JSON.stringify(entries)); 
+        renderLists(); 
+        renderAll(); 
+        clearForm();
+    }
+    // មុខងារសម្រាប់បង្ហាញកាលវិភាគសម្រាប់គ្រប់ថ្ងៃ និងប៊ូតុងសកម្មភាព
+    function renderAll() { 
+        renderMasterSchedule(); 
+        renderMatrix(); 
+
+    }
+    // បង្កើតតារាងកាលវិភាគរួមសម្រាប់គ្រប់ថ្នាក់ក្នុងមួយសប្តាហ៍
+    function renderLists() {
+        const dir = document.getElementById('directorName').value || "............................";
+        const chan = document.getElementById('chanDate').value || "";
+        const soriya = document.getElementById('soriyaDate').value || "";
+        // សម្រាប់គ្រប់ថ្ងៃ បង្ហាញកាលវិភាគ និងប៊ូតុងសកម្មភាព
+        days.forEach((day, index) => {
+            const container = document.getElementById(day); 
+            const dayEntries = entries.filter(e => e.day === day).sort((a,b) => allSlots.indexOf(a.time) - allSlots.indexOf(b.time));
+            // បង្កើតតារាងកាលវិភាគសម្រាប់ថ្ងៃនេះ និងប៊ូតុងសកម្មភាពកែសម្រួល និងលុប
+            let html = `<table><thead><tr><th>ម៉ោង</th><th>ឈ្មោះគ្រូ</th><th>ភេទ</th><th>ថ្នាក់</th><th>មុខវិជ្ជា</th><th>សកម្មភាព</th></tr></thead><tbody>`;
+            dayEntries.forEach(m => {
+                html += `<tr><td>${m.time}</td><td>${m.name}</td><td>${m.gender}</td><td>${m.className}</td><td>${m.sub}</td>
+                    <td><button style="background:#f39c12;color:white;border:none;padding:2px 5px;cursor:pointer" onclick="editRow(${m.id})">កែ</button>
+                    <button style="background:#e74c3c;color:white;border:none;padding:2px 5px;cursor:pointer" onclick="delRow(${m.id})">លុប</button></td></tr>`;
+            });
+            // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញកាលបរិច្ឆេទ និងហត្ថលេខា នៅចុងតារាង
+            html += `</tbody></table>`;
+            // បន្ថែមផ្នែកហត្ថលេខា និងកាលបរិច្ឆេទនៅចុងទំព័រ
+            html += `
+                <div class="day-footer-signature">
+                    <div class="footer-sig-box">
+                        <div class="sig-title">បានឃើញ និងឯកភាព<br>នាយកសាលា</div>
+                        <div class="sig-name" style="margin-top:50px;">${dir}</div>
+                    </div>
+                    <div class="footer-sig-box">
+                        <div class="sig-date-area">${chan}<br>${soriya}</div>
+                        <div class="sig-title">អ្នករៀបចំ</div>
+                        <div class="sig-name" style="margin-top:50px;">............................</div>
+                    </div>
+                </div>
+            `;
+            // បង្ហាញកាលវិភាគសម្រាប់ថ្ងៃនេះនៅលើទំព័រ
+            container.innerHTML = html;
+        });
+    }
+    // បង្កើតតារាងម៉ាទ្រីសសម្រាប់បង្ហាញថ្នាក់នីមួយៗមានម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍
+    function renderAll() { 
+        renderMasterSchedule(); 
+        renderMatrix(); 
+        renderAttendanceTable();
+    }
+    // បង្កើតតារាងកាលវិភាគរួមសម្រាប់គ្រប់ថ្នាក់ក្នុងមួយសប្តាហ៍
+    function renderMasterSchedule() {
+        const outer = document.getElementById('master-schedule-outer');
+        const schName = document.getElementById('schoolName').value;
+        // ចម្រាញ់យកតែទិន្នន័យណាដែលជា "គ្រូបង្រៀន" ឬ "គ្រូបន្ទុកថ្នាក់" (ផ្អែកលើតួនាទីដែលមានពាក្យថា "គ្រូ")
+        const filteredEntries = entries.filter(e => e.role.includes("គ្រូ"));
+        const uniqueClasses = [...new Set(entries.map(e => e.className))].sort();
+        if (uniqueClasses.length === 0) { outer.innerHTML = ""; return; }
+        // បង្កើតតារាងម៉ាទ្រីសសម្រាប់បង្ហាញថ្នាក់នីមួយៗមានម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍
+        let html = `<div class="master-container"><div class="header-top"><div class="school-side"><div style="font-family:'Khmer OS Muol Light'; font-size:11px;">${schName}</div></div><div class="nation-side"><div class="nation-title" style="font-size:11px;">ព្រះរាជាណាចក្រកម្ពុជា</div><div class="nation-motto" style="font-size:9px;">ជាតិ សាសនា ព្រះមហាក្សត្រ</div></div></div><div class="master-title">កាលវិភាគរួមគ្រប់ថ្នាក់ (Master Schedule)</div><table class="master-table"><thead><tr><th rowspan="2" style="background:#34495e;">ថ្នាក់</th>`;
+        daysKh.forEach(d => html += `<th colspan="${allSlots.length}" style="border-left:1px solid white;">ថ្ងៃ${d}</th>`);
+        html += `<th rowspan="2" class="total-col" style="border-left:1px solid white;">សរុបម៉ោង</th></tr><tr>`;
+        days.forEach(() => allSlots.forEach(t => html += `<th style="font-size:6px; background:#5d6d7e;">${t.split(' ')[0]}</th>`));
+        html += `</tr></thead><tbody>`;
+        // សម្រាប់គ្រប់ថ្នាក់ បង្ហាញម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍ និងគណនាសរុបម៉ោងបង្រៀនសម្រាប់ថ្នាក់នោះ
+        uniqueClasses.forEach(cName => {
+            let weeklyTotal = 0; html += `<tr><td style="font-weight:bold; background:#f2f4f4;">${cName}</td>`;
+            days.forEach(day => { 
+                allSlots.forEach(slot => { 
+                    //const match = entries.find(e => e.className === cName && e.day === day && e.time === slot);
+                    const match = filteredEntries.find(e => e.className === cName && e.day === day && e.time === slot);
+                    if(match) { html += `<td>${match.sub}</td>`; weeklyTotal++; } else { html += `<td></td>`; } 
+                }); 
+            });
+            // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់ថ្នាក់នោះ
+            html += `<td style="font-weight:bold; background:#eaeded;">${weeklyTotal}</td></tr>`;
+        });
+        // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រប់ថ្នាក់ និងសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់នៅចុងតារាង
+        html += `</tbody></table>`;
+        // បង្កើតសង្ខេបសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់ និងមុខវិជ្ជាដែលគ្រូនីមួយៗបានបង្រៀន
+        const teacherStats = {};
+        entries.forEach(e => {
+            if (!teacherStats[e.name]) teacherStats[e.name] = { total: 0, gender: e.gender || "---", subjects: new Set(), classes: new Set() };
+            teacherStats[e.name].total++;
+            teacherStats[e.name].subjects.add(e.sub);
+            teacherStats[e.name].classes.add(e.className);
+        });
+        // បន្ថែមផ្នែកសង្ខេបសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់ និងមុខវិជ្ជាដែលគ្រូនីមួយៗបានបង្រៀន
+        html += `<div class="summary-section" style="margin-top:15px;"><div class="summary-header">បញ្ជីសរុបម៉ោងបង្រៀនរបស់គ្រូ (Teacher Teaching Hours)</div><div class="summary-grid">`;
+        for (let tName in teacherStats) {
+            html += `<div class="summary-item"><strong>${tName} (${teacherStats[tName].gender})</strong><br>សរុប៖ ${teacherStats[tName].total} ម៉ោង<br><span style="font-size:9px; color:#1a5276; font-weight:bold;">ថ្នាក់៖ ${Array.from(teacherStats[tName].classes).sort().join(', ')}</span><br><span style="font-size:9px; color:#555;">[ ${Array.from(teacherStats[tName].subjects).join(', ')} ]</span></div>`;
+        }
+        html += `</tbody></table></div>`;
+        outer.innerHTML = html;
+    }
+    // បង្កើតតារាងវត្តមានសម្រាប់គ្រូទាំងអស់ក្នុងមួយសប្តាហ៍
+    function renderAttendanceTable() {
+        const container = document.getElementById('all-days-attendance-container');
+        container.innerHTML = "";
+        const teachers = [...new Set(entries.map(e => e.name))];
+        if (teachers.length === 0) return;
+        const dirName = document.getElementById('directorName').value || "............................";
+        const chan = document.getElementById('chanDate').value || "";
+        const soriya = document.getElementById('soriyaDate').value || "";
+        // សម្រាប់គ្រប់ថ្ងៃ បង្ហាញតារាងវត្តមានសម្រាប់គ្រូទាំងអស់ និងម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍
+        days.forEach((day, index) => {
+            
+            const daySection = document.createElement('div');
+            daySection.className = "attendance-section";
+            let html = `<h3 style="text-align:center; font-family:'Khmer OS Muol Light';"></div>
+                <div style="font-size: 16px; margin-top: -5px;"><div style="width: 25%; text-align: center;">
+                    <div style="font-family: 'Khmer OS Muol Light'; font-size: 11px;"></div>                                        </div>ព្រះរាជាណាចក្រកម្ពុជា</div></div>
+                <div style="font-size: 16px; margin-top: -5px;"><div style="width: 25%; text-align: center;">
+                    <div style="font-family: 'Khmer OS Muol Light'; font-size: 11px;"></div>                                        </div>ជាតិ សាសនា ព្រះមហាក្សត្រ</div></div>
+                    
+                    <div style="font-size: 12px; margin-top: -5px;">~~~</div>
+                    <div style="font-size: 16px; margin-top: -5px;">បញ្ជីសម្រង់វត្តមានប្រចាំថ្ងៃរបស់មន្ត្រីរាជការស៊ីវិលក្នុង ${document.getElementById('schoolName').value || "............................"}<br>
+                <div style="font-size: 16px; margin-top: -5px;">ថ្ងៃ${daysKh[index]} ទី...........ខែ....................ឆ្នាំ ២០.........</div></h3><table class="attendance-table"><thead><tr><th rowspan="2">ល.រ</th><th rowspan="2" style="width:100px;">នាម-គោត្តនាម</th><th rowspan="2">ភេទ</th><th rowspan="2">តួនាទី</th><th colspan="5">ពេលព្រឹក</th><th colspan="4">ពេលល្ងាច</th><th rowspan="2">ផ្សេងៗ</th></tr><tr><th>១</th><th>២</th><th>៣</th><th>៤</th><th>៥</th><th>៦</th><th>៧</th><th>៨</th><th>៩</th></tr></thead><tbody>`;
+                    
+            // សម្រាប់គ្រប់គ្រូ បង្ហាញម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍ និងកំណត់ពណ៌សម្រាប់កន្លែងដែលមានម៉ោងបង្រៀន (busy) និងកន្លែងដែលគ្មានម៉ោងបង្រៀន (free)
+            teachers.forEach((tName, i) => {
+                const tInfo = entries.find(e => e.name === tName);
+                const role = tInfo.role || "";
+                const isTeacher = role.includes("គ្រូ");
+                html += `<tr>
+                <td>${i + 1}</td>
+                <td style="text-align:left; padding-left:5px;">${tName}</td>
+                <td>${tInfo.gender}</td>
+                <td>${role}</td>`;
+                allSlots.forEach(slot => {
+                const hasTask = entries.find(e => e.name === tName && e.day === day && e.time === slot);
+                
+                let slotClass = "";
+                let content = "";
+
+                if (isTeacher) {
+                    // បើជាគ្រូ៖ បើមានម៉ោងបង្រៀនចេញ ពណ៌ស (busy), បើអត់ម៉ោងចេញ ពណ៌ប្រផេះ (free)
+                    slotClass = hasTask ? 'busy-slot' : 'free-slot';
+                    //content = hasTask ? hasTask.className : '';
+                } else {
+                    // បើមិនមែនគ្រូ (នាយក, បេឡា...)៖ ចេញពណ៌ស (busy-slot) ទាំងអស់ ១០០%
+                    slotClass = 'busy-slot';
+                    //content = ""; 
+                }
+
+                html += `<td class="${slotClass}">${content}</td>`;
+            });
+                html += `<td></td></tr>`;
+            });
+            html += `</tbody></table>`;
+            // បន្ថែមផ្នែកហត្ថលេខានាយកសាលានៅទីនេះ
+            html += `
+                <div class="day-footer-signature" style="margin-top: 15px; display: flex; justify-content: space-between;">
+                    <div class="footer-sig-box" style="text-align: center; width: 40%;">
+                        <div class="sig-title" style="font-family: 'Khmer OS Muol Light'; font-size: 12px;">បានឃើញ និងឯកភាព<br>នាយកសាលា</div>
+                        <div class="sig-name" style="margin-top: 60px; font-family: 'Khmer OS Muol Light'; font-size: 12px;">${dirName}</div>
+                
+                        
+                    </div>
+                    <div style="width: 30%; text-align: center;">
+                        <div style="font-size: 12px; margin-top: -3px;">
+                        -សរុបអវត្ដមាន :.......................នាក់<br>
+                        -មានច្បាប់ :.............................នាក់<br>
+                        -ទំនេរគ្មានបៀរវត្ស :...................នាក់<br>
+                        -ផ្សេងៗ :.................................នាក់</div>
+                    </div>
+                    
+                    <div class="footer-sig-box" style="text-align: center; width: 45%;">
+                        <div class="sig-date-area" style="font-size: 10px;">${chan}<br>${soriya}</div>
+                        <div class="sig-title" style="font-family: 'Khmer OS Muol Light'; font-size: 11px; margin-top: 5px;">អ្នកធ្វើបញ្ជី</div>
+                        <div class="sig-name" style="margin-top: 60px; font-family: 'Khmer OS Muol Light'; font-size: 11px;">............................</div>
+                    </div>
+                </div>
+            `;
+            
+            daySection.innerHTML = html; 
+            container.appendChild(daySection);
+        });
+    }            
+            daySection.innerHTML = html; container.appendChild(daySection);
+    // បង្កើតតារាងម៉ាទ្រីសសម្រាប់បង្ហាញថ្នាក់នីមួយៗមានម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍
+    function renderMatrix() {
+        const container = document.getElementById('classes-matrix-container');
+        container.innerHTML = "";
+        const filteredEntries = entries.filter(e => e.role.includes("គ្រូ"));
+        //const uniqueClasses = [...new Set(entries.map(e => e.className))].sort();
+        const uniqueClasses = [...new Set(filteredEntries.map(e => e.className))].sort();
+        const chan = document.getElementById('chanDate').value;
+        const soriya = document.getElementById('soriyaDate').value;
+        const dirName = document.getElementById('directorName').value;
+        const schName = document.getElementById('schoolName').value;
+        // សម្រាប់គ្រប់ថ្នាក់ បង្ហាញម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍ និងសង្ខេបសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់ និងមុខវិជ្ជាដែលគ្រូនីមួយៗបានបង្រៀន
+        uniqueClasses.forEach(cName => {
+            //const classEntries = entries.filter(e => e.className === cName);
+            const classEntries = filteredEntries.filter(e => e.className === cName);
+            const classDiv = document.createElement('div'); classDiv.className = "class-group";
+            let html = `<div class="header-top"><div class="school-side"><div style="font-family:'Khmer OS Muol Light'; font-size:13px; color:var(--main-color)">${schName}</div></div><div class="nation-side"><div class="nation-title">ព្រះរាជាណាចក្រកម្ពុជា</div><div class="nation-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</div></div></div><div class="class-title">កាលវិភាគថ្នាក់ទី៖ ${cName}</div><table class="matrix-table"><thead><tr><th style="width:90px;">ម៉ោង</th>`;
+            daysKh.forEach(d => html += `<th>${d}</th>`);
+            html += `</tr></thead><tbody>`;
+            // សម្រាប់គ្រប់ថ្នាក់ បង្ហាញម៉ោងបង្រៀននៅពេលណាខ្លះក្នុងមួយសប្តាហ៍ និងកំណត់ពណ៌សម្រាប់កន្លែងដែលមានម៉ោងបង្រៀន (busy) និងកន្លែងដែលគ្មានម៉ោងបង្រៀន (free)
+            morningSlots.forEach(slot => {
+                html += `<tr><td style="font-weight:bold; background:#f9f9f9;">${slot}</td>`;
+
+                days.forEach(day => {
+                    const match = classEntries.find(e => e.day === day && e.time === slot);
+                    html += `<td>${match ? `<div style="line-height:1.1"><strong>${match.name}</strong><br><span style="color:var(--main-color);font-style:italic;font-size:9.5px">${match.sub}</span></div>` : '-'}</td>`;
+                });
+                html += `</tr>`;
+            });
+            // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញពេលសម្រាក និងពេលរសៀល
+            html += `<tr><td class="afternoon-break">12:00 - 13:00</td><td colspan="6" class="afternoon-break">សម្រាក / ពេលរសៀល</td></tr>`;
+            // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញម៉ោងបង្រៀននៅពេលរសៀល
+            afternoonSlots.forEach(slot => {
+                html += `<tr><td style="font-weight:bold; background:#f9f9f9;">${slot}</td>`;
+                days.forEach(day => {
+                    const match = classEntries.find(e => e.day === day && e.time === slot);
+                    html += `<td>${match ? `<div style="line-height:1.1"><strong>${match.name}</strong><br><span style="color:var(--main-color);font-style:italic;font-size:9.5px">${match.sub}</span></div>` : '-'}</td>`;
+                });
+                html += `</tr>`;
+            });
+            // បន្ថែមជួរថ្មីសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់ថ្នាក់នោះ
+            html += `</tbody></table>`;
+            // បង្កើតសង្ខេបសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់ និងមុខវិជ្ជាដែលគ្រូនីមួយៗបានបង្រៀន សម្រាប់ថ្នាក់នេះ
+            const stats = {}; let totalH = 0; 
+            classEntries.forEach(e => { 
+                if(!stats[e.name]) stats[e.name] = { gender: e.gender || "---", h: 0, subjects: new Set(), p: e.phone || "---" }; 
+                stats[e.name].h++; totalH++; stats[e.name].subjects.add(e.sub);
+            });
+            // បន្ថែមផ្នែកសង្ខេបសម្រាប់បង្ហាញសរុបម៉ោងបង្រៀនសម្រាប់គ្រូទាំងអស់ និងមុខវិជ្ជាដែលគ្រូនីមួយៗបានបង្រៀន សម្រាប់ថ្នាក់នេះ
+            html += `<div class="summary-section"><div class="summary-header">សេចក្តីសង្ខេបការបង្រៀនថ្នាក់ ${cName} (សរុប ${totalH} ម៉ោង)</div><div class="summary-grid">`;
+            for(let t in stats) { 
+                html += `<div class="summary-item"><strong>${t} (${stats[t].gender})</strong>៖ ${stats[t].h} ម៉ោង<br><span style="font-size:9px; color:#555;">${Array.from(stats[t].subjects).join(', ')}</span><br><span class="summary-contact">📞៖ ${stats[t].p}</span></div>`; 
+            }
+            html += `</div></div>`;
+            // បន្ថែមផ្នែកហត្ថលេខា និងកាលបរិច្ឆេទនៅចុងទំព័រ
+            const inCharge = classEntries.find(e => e.role.includes("បន្ទុក")); const sigN = inCharge ? inCharge.name : "............................";
+            html += `<div class="signature-section"><div class="sig-box"><div class="sig-title">បានឃើញ និងឯកភាព<br>នាយកសាលា</div><div class="sig-name">${dirName}</div></div><div class="sig-box"><div class="sig-date-area">${chan}<br>${soriya}</div><div class="sig-title">គ្រូបន្ទុកថ្នាក់ ${cName}</div><div class="sig-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${sigN}</div>`;
+            classDiv.innerHTML = html; container.appendChild(classDiv);
+        });
+    }
+    // មុខងារសម្រាប់កែសម្រួលការបែងចែកភារកិច្ច
+     function editRow(id) {
+        const item = entries.find(e => e.id == id);
+        if (item) {
+            document.getElementById('editId').value = item.id; 
+            document.getElementById('teacherName').value = item.name;
+            document.getElementById('genderSelect').value = item.gender;
+            document.getElementById('phoneInput').value = item.phone || ""; 
+            document.getElementById('roleInput').value = item.role;
+            document.getElementById('daySelect').value = item.day; 
+            document.getElementById('timeSelect').value = item.time;
+            document.getElementById('classInput').value = item.className; 
+            document.getElementById('subjectSelect').value = item.sub;
+            document.getElementById('addBtn').innerText = "✓ កែសម្រួល";
+        }
+    }
+    // មុខងារសម្រាប់លុបការបែងចែកភារកិច្ច
+    function renderLists() {
+        days.forEach(day => {
+            const tbody = document.getElementById(`list-${day}`); 
+            tbody.innerHTML = "";
+            
+            // បន្ថែមមុខងារ Sort តាមពេលវេលាសម្រាប់តារាងនៃថ្ងៃនីមួយៗ
+            const dayEntries = entries.filter(e => e.day === day).sort((a, b) => {
+                return allSlots.indexOf(a.time) - allSlots.indexOf(b.time);
+            });
+            // បង្កើតតារាងកាលវិភាគសម្រាប់ថ្ងៃនេះ និងប៊ូតុងសកម្មភាពកែសម្រួល និងលុប
+            dayEntries.forEach(m => {
+                const row = tbody.insertRow();
+                row.innerHTML = `<td>${m.time}</td><td>${m.name}</td><td>${m.gender || "---"}</td><td>${m.className}</td><td>${m.sub}</td>
+                    <td><button style="background:#f39c12;color:white;padding:2px 5px;border:none;border-radius:3px;cursor:pointer" onclick="editRow(${m.id})">កែ</button>
+                    <button style="background:#e74c3c;color:white;padding:2px 5px;border:none;border-radius:3px;cursor:pointer" onclick="delRow(${m.id})">លុប</button></td>`;
+            });
+        });
+    }
+     
+    // មុខងារសម្រាប់លុបការបែងចែកភារកិច្ច
+    function delRow(id) { 
+        if(confirm("តើអ្នកចង់លុបទិន្នន័យលោកគ្រូ/អ្នកគ្រូម្នាក់នេះមែនទេ?")) { 
+            entries = entries.filter(e => e.id !== id); 
+            localStorage.setItem('teacherTasks', JSON.stringify(entries)); 
+            renderLists(); 
+            renderAll(); 
+        } 
+    }
+    // មុខងារសម្រាប់បង្ហាញកាលវិភាគសម្រាប់ថ្ងៃដែលបានជ្រើសរើស
+    function showDay(d, t) { 
+        document.querySelectorAll('.day-content').forEach(el => el.classList.remove('active')); 
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active')); 
+        document.getElementById(d).classList.add('active'); 
+        t.classList.add('active'); 
+    }
+    // មុខងារសម្រាប់សម្អាតបែបបទបញ្ចូលទិន្នន័យ
+    function clearForm() { 
+        document.getElementById('teacherName').value = ""; 
+        document.getElementById('genderSelect').value = "";
+        document.getElementById('phoneInput').value = ""; 
+        document.getElementById('roleInput').value = ""; 
+        document.getElementById('classInput').value = "";
+    }
+    // មុខងារសម្រាប់លុបទិន្នន័យទាំងអស់
+    function clearAllData() { 
+        if(confirm("តើអ្នកចង់លុបទិន្នន័យទាំងអស់មែនទេ?")) { 
+            entries = []; 
+            localStorage.removeItem('teacherTasks'); 
+            renderLists(); 
+            renderAll(); 
+        } 
+    }
+</script>
+</body>
+</html>
